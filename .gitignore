@@ -1,0 +1,10 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# User request: Ignore all json except sites.json
+*.json
+!sites.json

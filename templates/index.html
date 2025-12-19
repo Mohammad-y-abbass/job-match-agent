@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Scraper Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="header__title">🔍 Job Scraper</h1>
+            <div class="header__actions">
+                <button id="btn-full-scrape" class="btn btn--primary">
+                    <span class="btn__icon">🚀</span>
+                    Scrape & Match
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <section class="stats">
+            <div class="stats__card">
+                <span class="stats__value" id="stat-total">0</span>
+                <span class="stats__label">Total Jobs</span>
+            </div>
+            <div class="stats__card">
+                <span class="stats__value" id="stat-details">0</span>
+                <span class="stats__label">With Details</span>
+            </div>
+            <div class="stats__card">
+                <span class="stats__value" id="stat-matches">0</span>
+                <span class="stats__label">Matches</span>
+            </div>
+            <div class="stats__card">
+                <span class="stats__value" id="stat-sites">0</span>
+                <span class="stats__label">Sites</span>
+            </div>
+        </section>
+
+        <!-- Search and Filter -->
+        <section class="controls">
+            <input type="text" id="search-input" class="search-input" placeholder="Search matching jobs...">
+            <select id="filter-site" class="filter-select">
+                <option value="">All Sites</option>
+            </select>
+        </section>
+
+        <!-- Jobs Table -->
+        <section class="jobs-container">
+            <table class="jobs-table">
+                <thead>
+                    <tr>
+                        <th id="col-score">Score</th>
+                        <th>Site</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Matched</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="jobs-tbody">
+                    <tr>
+                        <td colspan="5" class="loading-cell">Loading jobs...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Pagination -->
+        <section class="pagination" id="pagination">
+            <button class="btn btn--secondary btn--small" id="btn-prev" disabled>← Previous</button>
+            <span class="pagination__info" id="pagination-info">Page 1 of 1</span>
+            <button class="btn btn--secondary btn--small" id="btn-next" disabled>Next →</button>
+        </section>
+
+        <!-- Logging Modal -->
+        <div id="log-modal" class="modal hidden">
+            <div class="modal__content modal__content--log">
+                <div class="modal__header">
+                    <h3>Scraping Progress</h3>
+                    <button class="modal__close" id="log-modal-close">&times;</button>
+                </div>
+                <div class="log-container" id="log-content">
+                    <div class="log-line">Waiting for process to start...</div>
+                </div>
+                <div class="modal__footer">
+                    <button class="btn btn--secondary btn--small" id="log-modal-close-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Details Modal -->
+        <div id="modal" class="modal hidden">
+            <div class="modal__content">
+                <button class="modal__close" id="modal-close">&times;</button>
+                <h2 id="modal-title" class="modal__title">Job Title</h2>
+                <p class="modal__site" id="modal-site">Site name</p>
+                <p class="modal__score" id="modal-score">Match Score: 0%</p>
+                <a href="#" id="modal-link" class="modal__link" target="_blank">View Original</a>
+                <div class="modal__description" id="modal-description">
+                    Job description will appear here...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

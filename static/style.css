@@ -1,0 +1,573 @@
+/* =========================================
+   CSS Variables & Reset
+   ========================================= */
+:root {
+    --bg-primary: #0f0f1a;
+    --bg-secondary: #1a1a2e;
+    --bg-card: rgba(30, 30, 50, 0.8);
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0c0;
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --accent-success: #22c55e;
+    --accent-warning: #f59e0b;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* =========================================
+   App Container
+   ========================================= */
+.app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* =========================================
+   Header
+   ========================================= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header__title {
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header__actions {
+    display: flex;
+    gap: 1rem;
+}
+
+/* =========================================
+   Buttons
+   ========================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn--primary {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    box-shadow: var(--shadow-glow);
+}
+
+.btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+}
+
+.btn--secondary {
+    background: var(--bg-glass);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+.btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-primary);
+}
+
+.btn--accent {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.btn--accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn__icon {
+    font-size: 1.1rem;
+}
+
+
+/* Score Badge */
+.score-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Modal Score */
+.modal__score {
+    color: var(--accent-success);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* =========================================
+   Stats Cards
+   ========================================= */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats__card {
+    background: var(--bg-card);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--border-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats__card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-glow);
+}
+
+.stats__value {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stats__label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* =========================================
+   Status Banner
+   ========================================= */
+.status-banner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    border: 1px solid var(--accent-primary);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.3s ease;
+}
+
+.status-banner.hidden {
+    display: none;
+}
+
+.status-banner__spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--accent-primary);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+   Controls (Search & Filter)
+   ========================================= */
+.controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input, .filter-select {
+    padding: 0.75rem 1rem;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.search-input {
+    flex: 1;
+}
+
+.search-input:focus, .filter-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.filter-select {
+    min-width: 150px;
+    cursor: pointer;
+}
+
+.filter-select option {
+    background: var(--bg-secondary);
+}
+
+/* =========================================
+   Jobs Table
+   ========================================= */
+.jobs-container {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.jobs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.jobs-table th,
+.jobs-table td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+}
+
+.jobs-table th {
+    background: rgba(0, 0, 0, 0.3);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.jobs-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s ease;
+}
+
+.jobs-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.jobs-table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
+
+.loading-cell {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 3rem !important;
+}
+
+/* Status Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge--success {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--accent-success);
+}
+
+.badge--warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--accent-warning);
+}
+
+.badge--pending {
+    background: rgba(160, 160, 192, 0.2);
+    color: var(--text-secondary);
+}
+
+/* Action Buttons */
+.btn--small {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+/* =========================================
+   Pagination
+   ========================================= */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.pagination__info {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+/* =========================================
+   Modal
+   ========================================= */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal__content {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.modal__close:hover {
+    color: var(--text-primary);
+}
+
+.modal__title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    padding-right: 2rem;
+}
+
+.modal__site {
+    color: var(--accent-primary);
+    margin-bottom: 1rem;
+}
+
+.modal__link {
+    display: inline-block;
+    color: var(--accent-secondary);
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+}
+
+.modal__link:hover {
+    text-decoration: underline;
+}
+
+.modal__description {
+    background: var(--bg-glass);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/* =========================================
+   Scrollbar
+   ========================================= */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-secondary);
+}
+
+/* =========================================
+   Logging Modal & Terminal
+   ========================================= */
+.modal__content--log {
+    max-width: 900px;
+    background: #000000;
+    border: 1px solid var(--accent-primary);
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.modal__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.log-container {
+    flex: 1;
+    background: #0d0d0d;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    overflow-y: auto;
+    color: #e0e0e0;
+    white-space: pre-wrap;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.log-line {
+    margin-bottom: 2px;
+}
+
+.log-line--step {
+    color: var(--accent-primary);
+    font-weight: bold;
+    margin-top: 1rem;
+}
+
+.modal__footer {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* =========================================
+   Responsive
+   ========================================= */
+@media (max-width: 768px) {
+    .app {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .header__actions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .jobs-table th,
+    .jobs-table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .stats__value {
+        font-size: 2rem;
+    }
+}

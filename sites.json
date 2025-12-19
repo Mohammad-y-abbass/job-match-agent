@@ -1,0 +1,65 @@
+[
+    {
+        "name": "dice",
+        "url": "https://www.dice.com/jobs?filters.postedDate=THREE&filters.workplaceTypes=Remote&q=software+development",
+        "list_selector": "div[role=list]",
+        "list_item_selector": "div[role=listitem]",
+        "item_url": "a"
+    },
+    {
+        "name": "WWR",
+        "url": "https://weworkremotely.com/remote-jobs/search?search_uuid=&sort=&term=&categories_chosen=&categories%5B%5D=2&categories%5B%5D=17&categories%5B%5D=18&countries_chosen=&chosen-salary_range=&skills_chosen=",
+        "list_selector": "section#category-2 > article > ul",
+        "list_item_selector": "li",
+        "item_url": "a.listing-link--unlocked"
+    },
+    {
+        "name": "remoteOk",
+        "url": "https://remoteok.com/?location=Worldwide&order_by=date",
+        "list_selector": "table#jobsboard > tbody",
+        "list_item_selector": "tr.job",
+        "item_url": "a.preventLink"
+    },
+    {
+        "name": "meetfrank",
+        "url": "https://meetfrank.com/fully-remote-software-engineering-jobs",
+        "list_selector": "div.dg.di",
+        "list_item_selector": "div.hY",
+        "item_url": "a"
+    },
+    {
+        "name": "workable",
+        "url": "https://jobs.workable.com/search?location=Lebanon&day_range=7",
+        "list_selector": "ul.jobsList__list-container--2L__X",
+        "list_item_selector": "li",
+        "item_url": "a"
+    },
+    {
+        "name": "remocate",
+        "url": "https://www.remocate.app/",
+        "list_selector": "div.jobs_section > div.padding-global > div.container-large > div.jobs_wr > div.w-dyn-list > div.board-list",
+        "list_item_selector": "div.w-dyn-item",
+        "item_url": "a"
+    },
+    {
+        "name": "naukrigulf",
+        "url": "https://www.naukrigulf.com/jobs-in-lebanon?experience=0,1&freshness=3&industryType=25&xz=1_2_5,1_3_5,1_23_5",
+        "list_selector": "div.srp-listing > div.tuple-wrap.opaque-true",
+        "list_item_selector": "div.ng-box.srp-tuple",
+        "item_url": "a"
+    },
+    {
+        "name": "bayt",
+        "url": "https://www.bayt.com/en/lebanon/jobs/jobs-in-beirut/?filters%5Bjb_industry_id_original%5D%5B%5D=25&filters%5Bjb_last_modification_date_interval%5D%5B%5D=2&options%5Bsort%5D%5B%5D=d&_gl=1*lwei5g*_up*MQ..*_gs*MQ..*_ga*MTYzNTIxNjc1OS4xNzY1OTAxNjUz*_ga_1NKPLGNKKD*czE3NjU5MDE2NTIkbzEkZzEkdDE3NjU5MDE2ODYkajI2JGwwJGgw&gclid=Cj0KCQiAo4TKBhDRARIsAGW29bdGFK7PVlllu1QxT4D6zObAuJ_JU6oz27o9qsmKNrp72W0L69GfMJYaAlhxEALw_wcB&gbraid=0AAAAADQc7l2BB6ELO06IjruvHymH3niZz",
+        "list_selector": "div#results_inner_card > ul",
+        "list_item_selector": "li",
+        "item_url": "a"
+    },
+    {
+        "name": "hire lebanese",
+        "url": "https://www.hirelebanese.com/searchresults.aspx?order=date&keywords=&category=10&type=&duration=&country=117,241,258,259,260&state=&city=&emp=&pg=1&s=-1&top=0",
+        "list_selector": "table.ListBorder",
+        "list_item_selector": "tr > td > div.panel > div.panel-heading",
+        "item_url": "div.panel-title > h4 > a"
+    }
+]
