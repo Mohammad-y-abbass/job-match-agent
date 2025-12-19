@@ -83,6 +83,30 @@ Update `sites.json` to configure which job boards to scrape.
 ### 3. Detail Scraping Map
 Update `job-details-scraping-map.json` to define CSS selectors for extracting titles and descriptions from individual job pages for each site.
 
+### 4. Adding Custom Sites
+You can add your own job boards to the scraper!
+
+1.  **Add the site to `sites.json`**:
+    Define the URL and the CSS selectors to find the list of jobs and the link to each job.
+    ```json
+    {
+      "name": "my-custom-site",
+      "url": "https://example.com/jobs",
+      "list_selector": ".job-list",
+      "list_item_selector": ".job-card",
+      "item_url": "a.title-link"
+    }
+    ```
+
+2.  **Add detail selectors to `job-details-scraping-map.json`**:
+    **Crucial Step:** You MUST add valid selectors for the Job Title and Description so the detailed scraper knows what to grab. The key must match the `name` you used in `sites.json`.
+    ```json
+    "my-custom-site": {
+      "title": "h1.role-title",
+      "description": "div.job-body"
+    }
+    ```
+
 ## Quick Start
 
 1.  **Install dependencies**: `pip install -r requirements.txt`

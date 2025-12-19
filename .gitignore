@@ -8,3 +8,4 @@ __pycache__/
 # User request: Ignore all json except sites.json
 *.json
 !sites.json
+!job-details-scraping-map.json

@@ -1,0 +1,38 @@
+{
+    "dice": {
+        "title": "h1",
+        "description": "div#jobDescription"
+    },
+    "WWR": {
+        "title": "h1",
+        "description": "div.lis-container__job__content__description"
+    },
+    "remoteOk": {
+        "title": "h2",
+        "description": "div.markdown"
+    },
+    "meetfrank": {
+        "title": "h1",
+        "description": "div.dY > div.cP > div"
+    },
+    "workable": {
+        "title": "h1 > strong",
+        "description": "div[data-ui=job-breakdown-requirements-parsed-html]"
+    },
+    "remocate": {
+        "title": "h1",
+        "description": "div.job-content"
+    },
+    "naukrigulf": {
+        "title": "h1",
+        "description": "article.job-description > section"
+    },
+    "bayt": {
+        "title": "h1",
+        "description": "div.card-content"
+    },
+    "hire lebanese": {
+        "title": "span#title",
+        "description": "span#description"
+    }
+}
