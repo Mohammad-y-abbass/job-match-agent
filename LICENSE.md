@@ -1,4 +1,4 @@
-# jon-match-agent License (Non-Commercial, Contribution-Only)
+# job-match-agent License (Non-Commercial, Contribution-Only)
 
 Copyright (c) 2025 [Mohammad Y Abbass]
 
