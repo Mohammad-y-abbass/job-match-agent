@@ -17,7 +17,30 @@ A comprehensive tool to scrape job listings, extract details, clean descriptions
 
 ## Installation
 
-1.  **Clone the repository** (if applicable) or navigate to the project folder.
+### For Users (Usage Only)
+If you simply want to use the application without modifying the core code or contributing back:
+
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/Mohammad-y-abbass/job-match-agent.git
+    cd job-match-agent
+    ```
+    *This creates a local copy on your machine that you can run immediately.*
+
+### For Contributors (Development)
+If you want to modify the code, add features, and submit changes (Pull Requests):
+
+1.  **Fork the repository**:
+    *   Click the **Fork** button in the top-right corner of this GitHub page.
+    *   This creates a copy of the repository under your own GitHub account.
+
+2.  **Clone your Fork**:
+    ```bash
+    git clone https://github.com/YOUR-USERNAME/job-match-agent.git
+    cd job-match-agent
+    ```
+
+### Setup Steps (For both Users and Contributors)
 
 2.  **Create and activate a virtual environment**:
     ```bash
