@@ -2,10 +2,21 @@ import json
 import os
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
+from datetime import datetime
 
 # Base directory for resolving file paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Global model cache
+_model_cache = None
+
+def get_model():
+    """Load the SentenceTransformer model once and cache it."""
+    global _model_cache
+    if _model_cache is None:
+        print("Loading sentence-transformers model...")
+        _model_cache = SentenceTransformer('all-MiniLM-L6-v2')
+    return _model_cache
 
 def load_resume():
     """Load resume text from resume.md"""
@@ -25,7 +36,16 @@ def load_jobs():
         print("Error: jobs_for_embedding.json not found or invalid.")
         return {}
 
-from datetime import datetime
+def is_senior_role(title):
+    """Check if a job title indicates a senior/lead role."""
+    if not title:
+        return False
+    senior_keywords = [
+        "senior", "lead", "principal", "head", "manager", "director",
+        "vp", "vice president", "chief", "architect"
+    ]
+    title_lower = title.lower()
+    return any(keyword in title_lower for keyword in senior_keywords)
 
 def match_jobs(threshold=0.5, top_n=100):
     """
@@ -38,8 +58,7 @@ def match_jobs(threshold=0.5, top_n=100):
     Returns:
         List of matching jobs with scores and history
     """
-    print(f"Loading sentence-transformers model (Threshold: {threshold})...")
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    model = get_model()
     
     resume = load_resume()
     if not resume:
@@ -64,40 +83,30 @@ def match_jobs(threshold=0.5, top_n=100):
     print("Creating resume embedding...")
     resume_embedding = model.encode([resume])[0]
     
-    # Create job embeddings and calculate similarity
-    print("Calculating similarity scores...")
-    matches = []
-    
-    all_urls = list(jobs.keys())
-    job_urls = []
-    job_texts = []
-    job_titles = []
-
-    # Filter out Senior roles
-    print("Filtering out Senior roles...")
-    for url in all_urls:
-        title = jobs[url].get('title', 'Untitled')
-        if 'senior' in title.lower():
+    # Prepare job data excluding senior roles
+    job_urls, job_texts, job_titles = [], [], []
+    for url, job in jobs.items():
+        title = job.get('title', 'Untitled')
+        if is_senior_role(title):
             continue
-        
         job_urls.append(url)
-        job_texts.append(jobs[url].get('cleaned_text', ''))
+        job_texts.append(job.get('cleaned_text', ''))
         job_titles.append(title)
-        
-    print(f"Processing {len(job_urls)} jobs after filtering (from {len(all_urls)} total).")
     
-    # Batch encode for efficiency
+    print(f"Processing {len(job_urls)} jobs after filtering senior roles (from {len(jobs)} total).")
+    
+    # Batch encode job descriptions
     job_embeddings = model.encode(job_texts, show_progress_bar=True)
     
     # Calculate cosine similarity
     similarities = cosine_similarity([resume_embedding], job_embeddings)[0]
     
     now = datetime.now().isoformat()
-    
+    matches = []
+
     # Create matches with scores
     for i, (url, title, score) in enumerate(zip(job_urls, job_titles, similarities)):
         if score >= threshold:
-            # Check if it was already matched
             is_new = url not in existing_matches
             matched_at = existing_matches[url].get('matched_at', now) if not is_new else now
             status = existing_matches[url].get('status', 'matched') if not is_new else 'matched'
@@ -112,24 +121,21 @@ def match_jobs(threshold=0.5, top_n=100):
                 "status": status
             })
     
-    # Sort by score descending
+    # Sort by score descending and limit
     matches.sort(key=lambda x: x['score'], reverse=True)
-    
-    # Limit to top_n
     matches = matches[:top_n]
     
     print(f"Found {len(matches)} matching jobs above threshold {threshold}")
     
-    # Save to file
+    # Save results
     with open(os.path.join(BASE_DIR, 'static/matching_jobs.json'), 'w', encoding='utf-8') as f:
         json.dump(matches, f, indent=2, ensure_ascii=False)
     
     print(f"Saved matching jobs to matching_jobs.json")
-    
     return matches
 
 if __name__ == "__main__":
     matches = match_jobs()
-    print(f"\nTop 10 Matches:")
+    print("\nTop 10 Matches:")
     for i, match in enumerate(matches[:10], 1):
         print(f"{i}. [{match['score']:.3f}] {match['title']}")
