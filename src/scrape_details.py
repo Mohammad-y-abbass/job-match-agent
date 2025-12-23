@@ -1,12 +1,16 @@
 import json
+import os
 import time
 from datetime import datetime
 from playwright.sync_api import sync_playwright
 
+# Base directory for resolving file paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def scrape_details():
     # Load configuration
     try:
-        with open('job-details-scraping-map.json', 'r') as f:
+        with open(os.path.join(BASE_DIR, 'static/job-details-scraping-map.json'), 'r') as f:
             scraping_map = json.load(f)
     except FileNotFoundError:
         print("Error: job-details-scraping-map.json not found.")
@@ -14,7 +18,7 @@ def scrape_details():
 
     # Load jobs
     try:
-        with open('jobs.json', 'r') as f:
+        with open(os.path.join(BASE_DIR, 'static/jobs.json'), 'r') as f:
             jobs = json.load(f)
     except FileNotFoundError:
         print("Error: jobs.json not found.")
@@ -23,7 +27,7 @@ def scrape_details():
     # Load existing details to resume if stopped
     job_details = {}
     try:
-        with open('job_details.json', 'r') as f:
+        with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'r') as f:
             job_details = json.load(f)
             print(f"Loaded {len(job_details)} existing job details.")
     except (FileNotFoundError, json.JSONDecodeError):
@@ -45,7 +49,7 @@ def scrape_details():
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
-            headless=False,
+            headless=True,
             args=['--disable-blink-features=AutomationControlled']
         )
         context = browser.new_context(
@@ -67,7 +71,7 @@ def scrape_details():
                 job_details[url]["seen"] = True
                 job_details[url]["last_seen"] = datetime.now().isoformat()
                 # Save incrementally
-                with open('job_details.json', 'w') as f:
+                with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'w') as f:
                     json.dump(job_details, f, indent=2)
                 print(f"Marked as seen: {url}")
                 continue
@@ -134,7 +138,7 @@ def scrape_details():
                 }
 
                 # Save incrementally
-                with open('job_details.json', 'w') as f:
+                with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'w') as f:
                     json.dump(job_details, f, indent=2)
                 
                 print(f"Saved details for {title}")

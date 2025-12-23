@@ -1,12 +1,16 @@
 import json
+import os
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
+# Base directory for resolving file paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def load_resume():
     """Load resume text from resume.md"""
     try:
-        with open('resume.md', 'r', encoding='utf-8') as f:
+        with open(os.path.join(BASE_DIR, 'static/resume.md'), 'r', encoding='utf-8') as f:
             return f.read()
     except FileNotFoundError:
         print("Error: resume.md not found.")
@@ -15,7 +19,7 @@ def load_resume():
 def load_jobs():
     """Load jobs from jobs_for_embedding.json"""
     try:
-        with open('jobs_for_embedding.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(BASE_DIR, 'static/jobs_for_embedding.json'), 'r', encoding='utf-8') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         print("Error: jobs_for_embedding.json not found or invalid.")
@@ -48,7 +52,7 @@ def match_jobs(threshold=0.5, top_n=100):
     # Load existing matches to preserve history
     existing_matches = {}
     try:
-        with open('matching_jobs.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(BASE_DIR, 'static/matching_jobs.json'), 'r', encoding='utf-8') as f:
             old_data = json.load(f)
             existing_matches = {m['url']: m for m in old_data}
     except (FileNotFoundError, json.JSONDecodeError):
@@ -117,7 +121,7 @@ def match_jobs(threshold=0.5, top_n=100):
     print(f"Found {len(matches)} matching jobs above threshold {threshold}")
     
     # Save to file
-    with open('matching_jobs.json', 'w', encoding='utf-8') as f:
+    with open(os.path.join(BASE_DIR, 'static/matching_jobs.json'), 'w', encoding='utf-8') as f:
         json.dump(matches, f, indent=2, ensure_ascii=False)
     
     print(f"Saved matching jobs to matching_jobs.json")

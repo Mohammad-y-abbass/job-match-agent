@@ -6,6 +6,9 @@ import os
 import sys
 from collections import deque
 
+# Base directory for resolving file paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 app = Flask(__name__)
 
 # Status tracking for scraping operations
@@ -24,7 +27,7 @@ def add_log(message):
 def load_jobs():
     """Load jobs from jobs.json"""
     try:
-        with open('jobs.json', 'r') as f:
+        with open(os.path.join(BASE_DIR, 'static/jobs.json'), 'r') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return []
@@ -32,7 +35,7 @@ def load_jobs():
 def load_job_details():
     """Load job details from job_details.json"""
     try:
-        with open('job_details.json', 'r') as f:
+        with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'r') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
@@ -40,7 +43,7 @@ def load_job_details():
 def load_matching_jobs():
     """Load matching jobs from matching_jobs.json"""
     try:
-        with open('matching_jobs.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(BASE_DIR, 'static/matching_jobs.json'), 'r', encoding='utf-8') as f:
             return json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return []
@@ -190,7 +193,7 @@ def api_scrape_full():
         scrape_status["message"] = "Starting full process..."
         
         steps = [
-            ('main.py', 'Scraping URLs'),
+            ('scrape_urls.py', 'Scraping URLs'),
             ('scrape_details.py', 'Scraping Details'),
             ('matching.py', 'Running Matching')
         ]
@@ -249,7 +252,7 @@ def api_job_viewed():
                 break
         
         if updated:
-            with open('matching_jobs.json', 'w', encoding='utf-8') as f:
+            with open(os.path.join(BASE_DIR, 'static/matching_jobs.json'), 'w', encoding='utf-8') as f:
                 json.dump(matches, f, indent=2, ensure_ascii=False)
             return jsonify({"success": True})
         else:

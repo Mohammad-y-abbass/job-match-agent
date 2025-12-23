@@ -1,5 +1,9 @@
 import json
+import os
 import re
+
+# Base directory for resolving file paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def clean_description(text):
     """
@@ -76,7 +80,7 @@ def clean_description(text):
 
 def main():
     try:
-        with open('job_details.json', 'r', encoding='utf-8') as f:
+        with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'r', encoding='utf-8') as f:
             jobs = json.load(f)
     except FileNotFoundError:
         print("Error: job_details.json not found.")
@@ -98,7 +102,7 @@ def main():
             "cleaned_text": f"{title}\n\n{cleaned_text}" # Prepend title for embedding context
         }
 
-    with open('jobs_for_embedding.json', 'w', encoding='utf-8') as f:
+    with open(os.path.join(BASE_DIR, 'static/jobs_for_embedding.json'), 'w', encoding='utf-8') as f:
         json.dump(cleaned_jobs, f, indent=2, ensure_ascii=False)
         
     print(f"Processed {len(cleaned_jobs)} jobs. Saved to jobs_for_embedding.json")
