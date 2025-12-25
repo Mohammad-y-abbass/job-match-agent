@@ -121,10 +121,6 @@ def match_jobs(threshold=0.5, top_n=100):
                 "status": status
             })
     
-    # Sort by score descending and limit
-    matches.sort(key=lambda x: x['score'], reverse=True)
-    matches = matches[:top_n]
-    
     print(f"Found {len(matches)} matching jobs above threshold {threshold}")
     
     # Save results
