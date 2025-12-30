@@ -195,6 +195,7 @@ def api_scrape_full():
         steps = [
             ('scrape_urls.py', 'Scraping URLs'),
             ('scrape_details.py', 'Scraping Details'),
+            ('clean_job_details.py', 'Cleaning Job Details'),
             ('matching.py', 'Running Matching')
         ]
         

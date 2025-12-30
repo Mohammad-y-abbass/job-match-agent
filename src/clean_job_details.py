@@ -4,6 +4,7 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 import tempfile
+from datetime import datetime
 
 # Base directory for resolving file paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -29,6 +30,9 @@ SKIP_HEADERS = [
 
 KEEP_PATTERNS = [re.compile(p, re.I) for p in KEEP_HEADERS]
 SKIP_PATTERNS = [re.compile(p, re.I) for p in SKIP_HEADERS]
+
+def log(message):
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
 
 def clean_description(text: str) -> str:
     """Cleans a job description by keeping relevant sections and removing noise."""
@@ -80,37 +84,40 @@ def process_job(url: str, details: dict) -> tuple:
     original_desc = details.get("description", "")
     cleaned_text = clean_description(original_desc)
 
-    if len(cleaned_text) < 50:
-        print(f"Warning: Cleaned text for {title} is very short ({len(cleaned_text)} chars).")
-
     return url, {
         "title": title,
         "cleaned_text": f"{title}\n\n{cleaned_text}"
     }
 
 def main():
-    # Load job details
     try:
-        with open(os.path.join(BASE_DIR, "static/job_details.json"), "r", encoding="utf-8") as f:
-            jobs = json.load(f)
-    except FileNotFoundError:
-        print("Error: job_details.json not found.")
-        return
+        log("Starting clean_job_details.py")
+        
+        # Load job details
+        try:
+            with open(os.path.join(BASE_DIR, "static/job_details.json"), "r", encoding="utf-8") as f:
+                jobs = json.load(f)
+        except FileNotFoundError:
+            log("Error: job_details.json not found.")
+            return
 
-    cleaned_jobs = {}
+        cleaned_jobs = {}
 
-    # Use ThreadPoolExecutor for parallel processing if jobs are many
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        for url, cleaned in executor.map(partial(process_job), jobs.keys(), jobs.values()):
-            cleaned_jobs[url] = cleaned
+        # Use ThreadPoolExecutor for parallel processing if jobs are many
+        with ThreadPoolExecutor(max_workers=8) as executor:
+            for url, cleaned in executor.map(partial(process_job), jobs.keys(), jobs.values()):
+                cleaned_jobs[url] = cleaned
 
-    # Atomic write
-    output_path = os.path.join(BASE_DIR, "static/jobs_for_embedding.json")
-    with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as tf:
-        json.dump(cleaned_jobs, tf, indent=2, ensure_ascii=False)
-    os.replace(tf.name, output_path)
+        # Atomic write
+        output_path = os.path.join(BASE_DIR, "static/jobs_for_embedding.json")
+        with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as tf:
+            json.dump(cleaned_jobs, tf, indent=2, ensure_ascii=False)
+        os.replace(tf.name, output_path)
 
-    print(f"Processed {len(cleaned_jobs)} jobs. Saved to jobs_for_embedding.json")
+        log(f"Processed {len(cleaned_jobs)} jobs. Saved to jobs_for_embedding.json")
+
+    except Exception as e:
+        log(f"Critical error in clean_job_details: {e}")
 
 if __name__ == "__main__":
     main()

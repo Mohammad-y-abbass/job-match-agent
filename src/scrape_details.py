@@ -1,155 +1,173 @@
 import json
 import os
-import time
+import asyncio
 from datetime import datetime
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 
 # Base directory for resolving file paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def scrape_details():
-    # Load configuration
-    try:
-        with open(os.path.join(BASE_DIR, 'static/job-details-scraping-map.json'), 'r') as f:
-            scraping_map = json.load(f)
-    except FileNotFoundError:
-        print("Error: job-details-scraping-map.json not found.")
-        return
+# Name mapping
+SITE_NAME_MAP = {
+    "remote ok": "remoteOk",
+    "workable": "workable",
+    "meetfrank": "meetfrank",
+    "remocate": "remocate",
+    "naukrigulf": "naukrigulf",
+    "bayt": "bayt",
+    "hire lebanese": "hire lebanese",
+    "dice": "dice",
+    "WWR": "WWR"
+}
 
-    # Load jobs
-    try:
-        with open(os.path.join(BASE_DIR, 'static/jobs.json'), 'r') as f:
-            jobs = json.load(f)
-    except FileNotFoundError:
-        print("Error: jobs.json not found.")
-        return
+def log(message):
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
 
-    # Load existing details to resume if stopped
-    job_details = {}
-    try:
-        with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'r') as f:
-            job_details = json.load(f)
-            print(f"Loaded {len(job_details)} existing job details.")
-    except (FileNotFoundError, json.JSONDecodeError):
-        print("No existing job matching file found. Starting fresh.")
+async def scrape_single_job(context, job, scraping_map, job_details, lock, sem):
+    async with sem:
+        url = job.get('url')
+        site_name = job.get('site')
+        
+        if not url or not site_name:
+            return
 
-    # Name mapping to handle discrepancies (e.g. "remote ok" vs "remoteOk")
-    # Keys are names in jobs.json, Values are keys in job-details-scraping-map.json
-    site_name_map = {
-        "remote ok": "remoteOk",
-        "workable": "workable",
-        "meetfrank": "meetfrank",
-        "remocate": "remocate",
-        "naukrigulf": "naukrigulf",
-        "bayt": "bayt",
-        "hire lebanese": "hire lebanese",
-        "dice": "dice",
-        "WWR": "WWR"
-    }
+        config_key = SITE_NAME_MAP.get(site_name, site_name)
+        if config_key not in scraping_map:
+            # log(f"Skipping {site_name}: No scraping config found.")
+            return
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True,
-            args=['--disable-blink-features=AutomationControlled']
-        )
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            ignore_https_errors=True
-        )
-        page = context.new_page()
-
-        for i, job in enumerate(jobs):
-            url = job.get('url')
-            site_name = job.get('site')
-            
-            if not url or not site_name:
-                continue
-                
-            # Check if already scraped
-            if url in job_details:
-                # Mark as seen without re-scraping
-                job_details[url]["seen"] = True
-                job_details[url]["last_seen"] = datetime.now().isoformat()
-                # Save incrementally
-                with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'w') as f:
-                    json.dump(job_details, f, indent=2)
-                print(f"Marked as seen: {url}")
-                continue
-
-            # Get config key
-            config_key = site_name_map.get(site_name, site_name)
-            if config_key not in scraping_map:
-                print(f"Skipping {site_name}: No scraping config found.")
-                continue
-            
-            selectors = scraping_map[config_key]
-            
-            print(f"Scraping details for {url} ({site_name})...")
-            
+        selectors = scraping_map[config_key]
+        
+        # log(f"Scraping details for {url} ({site_name})...")
+        
+        page = None
+        try:
+            page = await context.new_page()
             try:
-                page.goto(url, timeout=60000)
-                # Small wait to ensure basic render
-                time.sleep(2)
+                await page.goto(url, timeout=60000)
+                await page.wait_for_timeout(2000)
 
                 # Special handling for MeetFrank
                 if config_key == 'meetfrank':
                     try:
-                        # Try to click "Read more" if it exists to expand description
-                        # Using a generic selector for "Read more" buttons often found on such sites
                         read_more_btn = page.locator('text="Read more"').first
-                        if read_more_btn.is_visible(timeout=3000):
-                            read_more_btn.click()
-                            print("Clicked 'Read more'")
-                            time.sleep(1)
-                    except Exception as e:
-                        print(f"MeetFrank 'Read more' action failed or not needed: {e}")
+                        if await read_more_btn.is_visible(timeout=3000):
+                            await read_more_btn.click()
+                            await page.wait_for_timeout(1000)
+                    except Exception:
+                        pass
 
                 # Extract Data
                 title = ""
                 description = ""
 
                 try:
-                    if page.locator(selectors['title']).count() > 0:
-                        title = page.locator(selectors['title']).first.inner_text().strip()
-                except Exception as e:
-                    print(f"Error extracting title: {e}")
+                    if await page.locator(selectors['title']).count() > 0:
+                        title = (await page.locator(selectors['title']).first.inner_text()).strip()
+                except Exception:
+                    pass
 
                 try:
-                    if page.locator(selectors['description']).count() > 0:
-                        # Get inner HTML to preserve formatting, or text if preferred. 
-                        # Use inner_text for clean text, inner_html for HTML.
-                        # User asked for "descriotion" (description), usually implies text content but HTML is detailed.
-                        # Let's use inner_text for now as it's cleaner for simple storage, 
-                        # but often descriptions need HTML. I'll use inner_text to be safe on JSON size 
-                        # and readability unless HTML is strictly required. 
-                        # Actually for job descriptions HTML is better to keep structure.
-                        # Let's grab inner_text for simplicity unless requested otherwise, 
-                        # or inner_html if the user wants rich text. 
-                        # Given the prompt simply said "descriotion", I will default to inner_text 
-                        # but keep newlines.
-                        description = page.locator(selectors['description']).first.inner_text().strip()
-                except Exception as e:
-                    print(f"Error extracting description: {e}")
+                    if await page.locator(selectors['description']).count() > 0:
+                        description = (await page.locator(selectors['description']).first.inner_text()).strip()
+                except Exception:
+                    pass
 
-                # Store result
-                job_details[url] = {
-                    "title": title,
-                    "description": description
-                }
-
-                # Save incrementally
-                with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'w') as f:
-                    json.dump(job_details, f, indent=2)
-                
-                print(f"Saved details for {title}")
+                if title or description:
+                    async with lock:
+                        job_details[url] = {
+                            "title": title,
+                            "description": description,
+                            "scraped_at": datetime.now().isoformat(),
+                            "seen": True,
+                            "last_seen": datetime.now().isoformat()
+                        }
+                    log(f"Scraped: {title[:50]}..." if title else f"Scraped: {url}")
+                else:
+                    log(f"Empty result for {url}")
 
             except Exception as e:
-                print(f"Failed to scrape {url}: {e}")
-                # Optional: Add a failed entry or just skip to retry later
+                log(f"Failed to scrape {url}: {e}")
+            finally:
+                if page:
+                    await page.close()
 
-        browser.close()
-    
-    print(f"Completed scraping details. Total: {len(job_details)}")
+        except Exception as e:
+             log(f"Error creating page for {url}: {e}")
+
+async def scrape_details():
+    try:
+        log("Starting scrape_details.py")
+        
+        # Load configuration
+        try:
+            with open(os.path.join(BASE_DIR, 'static/job-details-scraping-map.json'), 'r') as f:
+                scraping_map = json.load(f)
+        except FileNotFoundError:
+            log("Error: job-details-scraping-map.json not found.")
+            return
+
+        # Load jobs
+        try:
+            with open(os.path.join(BASE_DIR, 'static/jobs.json'), 'r') as f:
+                jobs = json.load(f)
+        except FileNotFoundError:
+            log("Error: jobs.json not found.")
+            return
+
+        # Load existing details
+        job_details = {}
+        try:
+            with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'r') as f:
+                job_details = json.load(f)
+                log(f"Loaded {len(job_details)} existing job details.")
+        except (FileNotFoundError, json.JSONDecodeError):
+            log("No existing job details found. Starting fresh.")
+
+        # Identify tasks
+        jobs_to_scrape = []
+        for job in jobs:
+            url = job.get('url')
+            if url in job_details:
+                 # Update last_seen in memory
+                 job_details[url]["seen"] = True
+                 job_details[url]["last_seen"] = datetime.now().isoformat()
+            else:
+                 jobs_to_scrape.append(job)
+
+        log(f"Found {len(jobs_to_scrape)} jobs to scrape.")
+
+        if jobs_to_scrape:
+            lock = asyncio.Lock()
+            sem = asyncio.Semaphore(10) # 10 concurrent tabs
+
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=['--disable-blink-features=AutomationControlled']
+                )
+                context = await browser.new_context(
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                    ignore_https_errors=True
+                )
+                
+                await context.route("**/*", lambda route: route.abort() if route.request.resource_type in ["image", "media", "font"] else route.continue_())
+
+                tasks = [scrape_single_job(context, job, scraping_map, job_details, lock, sem) for job in jobs_to_scrape]
+                await asyncio.gather(*tasks)
+
+                await context.close()
+                await browser.close()
+        
+        # Save all results at the end
+        log("Saving results...")
+        with open(os.path.join(BASE_DIR, 'static/job_details.json'), 'w') as f:
+            json.dump(job_details, f, indent=2)
+        
+        log(f"Completed scrape_details.py. Total details: {len(job_details)}")
+        
+    except Exception as e:
+        log(f"Critical error in scrape_details: {e}")
 
 if __name__ == "__main__":
-    scrape_details()
+    asyncio.run(scrape_details())
