@@ -229,6 +229,7 @@ def api_scrape_status():
 def api_matching_jobs():
     """Get matching jobs list"""
     matches = load_matching_jobs()
+    matches.reverse()
     return jsonify(matches)
 
 @app.route('/api/jobs/view', methods=['POST'])
